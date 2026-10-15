@@ -1,0 +1,234 @@
+# Everything the dress-up game can put on screen: bodies, the slots on each
+# body, and the body parts and items that go in those slots.
+#
+# Texture paths are relative to res://assets/.
+
+version: 1
+
+# Body, face and nose textures are all exported at this size, already placed
+# and rotated for their body. Positions and drop zones are in these pixels.
+canvas:
+  size: [1080, 1441]
+
+# The properties an instance can have.
+property:
+  # A property with `values` is a choice. Each instance that has the property
+  # gets its own value, so the nose can be a different color from the body.
+  color:
+    values: [blue, darkbrown, darkgreen, lightbrown, lightgreen]
+
+    # The color each value is drawn in, for anything that has `tint: color`.
+    # Its greyscale texture is multiplied by the tint. tools/extract_noses.gd
+    # worked these out from the painted noses.
+    tints:
+      blue: "#a6cbc6"
+      darkbrown: "#dea085"
+      darkgreen: "#9bcb8e"
+      lightbrown: "#ffdfa0"
+      lightgreen: "#defc9c"
+
+  # A property with a `type` is set on each instance and never changes.
+  grip:
+    type: point
+
+# A category is a kind of thing. Categories are listed here so slots can say
+# which kinds they accept.
+# e.g. hand slots accept item.held, so a berry branch works there
+category:
+  # The name is the path to the entry: this one is `face` under `body_part`.
+  body_part.face:
+    label: Face
+
+  body_part.nose:
+    label: Nose
+    # Properties the category requires.
+    properties: [color]
+
+  item.held:
+    label: Held Item
+    properties: [grip]
+
+# Anything written beside `instances` applies to every instance in the list.
+body:
+  # Properties every body supports, from the ones under `property`.
+  properties: [color]
+
+  # Which of those properties have a texture each. The texture path uses the
+  # property as a placeholder, so there is one body file per color.
+  variants: [color]
+
+  # {id} is the id of the instance. It is not a property, and it works in any
+  # texture path.
+  texture: "koroks/{id}/bodies/{color}.png"
+
+  # An instance is one thing the player can pick.
+  instances:
+    standing:
+      label: Standing
+      slots:
+        face:
+          # The categories this slot takes. Anything else is refused.
+          accepts: [body_part.face]
+
+          # Draw order, counted up from the body. Higher is drawn on top.
+          z: 1
+
+          # Where a dragged face has to be dropped to land in this slot. The
+          # slot has no `position` because face art is already placed on the
+          # canvas for this body.
+          drop_zone:
+            center: [535, 740]
+            radius: 170
+
+        # left and right are the korok's own sides, so this hand is on the
+        # viewer's right.
+        left_hand:
+          accepts: [item.held]
+          z: 2
+
+          # The hand decides where a held item is drawn. The item's grip goes
+          # on `position`, and `rotation` turns the item around that point, in
+          # degrees clockwise.
+          position: [700, 900]
+          rotation: 0
+          drop_zone:
+            center: [700, 900]
+            radius: 60
+
+        right_hand:
+          accepts: [item.held]
+          z: 2
+          position: [350, 890]
+          rotation: 0
+          drop_zone:
+            center: [350, 890]
+            radius: 60
+
+    handsup:
+      label: Hands Up
+      slots:
+        face:
+          accepts: [body_part.face]
+          z: 1
+          drop_zone:
+            center: [540, 735]
+            radius: 170
+
+        left_hand:
+          accepts: [item.held]
+          z: 2
+          position: [650, 890]
+          rotation: 33
+          drop_zone:
+            center: [670, 870]
+            radius: 60
+
+        right_hand:
+          accepts: [item.held]
+          z: 2
+          position: [400, 885]
+          rotation: -34
+          drop_zone:
+            center: [385, 860]
+            radius: 60
+
+    flying:
+      label: Flying
+      slots:
+        face:
+          accepts: [body_part.face]
+          z: 1
+          drop_zone:
+            center: [410, 665]
+            radius: 170
+
+        left_hand:
+          accepts: [item.held]
+          z: 2
+          position: [610, 760]
+          rotation: 3
+          drop_zone:
+            center: [595, 735]
+            radius: 60
+
+        right_hand:
+          accepts: [item.held]
+          z: 2
+          position: [395, 905]
+          rotation: 0
+          drop_zone:
+            center: [395, 905]
+            radius: 60
+
+body_part:
+  face:
+    # The face with the colored part of its nose cut out. The nose layer fills
+    # the gap.
+    texture: "koroks/faces/{id}/face.png"
+
+    # A body part can have slots of its own. Every face has a nose slot.
+    slots:
+      nose:
+        accepts: [body_part.nose]
+
+        # The instance put in this slot as soon as a face is chosen, so the
+        # player never has to pick a nose.
+        default: nose
+
+        # Counted up from the face, so the nose is drawn one layer above it.
+        z: 1
+
+    # A face needs nothing of its own, so each entry is empty.
+    instances:
+      green-butterfly:
+        label: Green Butterfly
+      green-lilypad:
+        label: Green Lilypad
+      green-long:
+        label: Green Long
+      green-longheart:
+        label: Green Longheart
+      green-spearhead:
+        label: Green Spearhead
+      green-winkheart:
+        label: Green Winkheart
+      lightgreen-maple:
+        label: Light Green Maple
+      orange-lemon:
+        label: Orange Lemon
+      red-chevron:
+        label: Red Chevron
+
+  nose:
+    # color is not listed under `properties` here because the body_part.nose
+    # category already requires it. There is one greyscale texture, drawn in
+    # the chosen color's tint, so color is a tint and not a variant.
+    tint: color
+
+    # Each face draws its nose in its own shape and place, so the texture
+    # comes from the face holding it. {holder} is the id of the instance whose
+    # slot this one is in.
+    texture: "koroks/faces/{holder}/nose.png"
+
+    # There is one nose. It is listed so every category has the same form.
+    instances:
+      nose: {}
+
+item:
+  held:
+    instances:
+      berry-branch:
+        label: Berry Branch
+        # One texture, drawn upright and cropped to the item. It has no
+        # variants because the hand holding it decides where it is drawn.
+        texture: "koroks/accessories/berry-branch-left.png"
+
+        # The point in the texture that goes on the hand, as a fraction of the
+        # texture's width and height. [0.5, 1.0] is the middle of the bottom
+        # edge.
+        grip: [0.5, 1.0]
+
+      leaf-fan:
+        label: Leaf Fan
+        texture: "koroks/accessories/leaf-fan.png"
+        grip: [0.5, 1.0]
