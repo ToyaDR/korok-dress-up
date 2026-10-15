@@ -1,0 +1,6 @@
+[gd_scene format=3 uid="uid://bm0j3hpbiu0wu"]
+
+[ext_resource type="Script" uid="uid://tlr7kksxscqy" path="res://scenes/korok.gd" id="1_korok"]
+
+[node name="Korok" type="Node2D" unique_id=145826881]
+script = ExtResource("1_korok")
